@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-message: "If you use Cork Board in your work, please cite it and credit Sam Wasserman (wassermanproductions.com)."
+message: "If you use Cork Board in your work, please cite it and credit Sam Wasserman (wassermanproductions.com), per the project's NOTICE and Section 4(d) of the Apache License 2.0."
 title: "Cork Board"
 abstract: "The digital cork board for filmmakers: a local-first planning wall of index cards, acts, arcs, and episodes for features, TV, shorts, music videos, commercials, and documentaries, with outline, scene-list, and Fountain exports."
 type: software
@@ -9,7 +9,7 @@ authors:
     website: "https://wassermanproductions.com"
 version: "1.0.0"
 date-released: "2026-07-18"
-license: "MIT"
+license: "Apache-2.0"
 url: "https://github.com/wassermanproductions/cork-board"
 repository-code: "https://github.com/wassermanproductions/cork-board"
 keywords:

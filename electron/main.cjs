@@ -19,7 +19,7 @@ try {
 const aboutDetails = {
   name: "Cork Board",
   developer: "Sam Wasserman",
-  license: "MIT License",
+  license: "Apache License 2.0",
   wassermanProductions: "https://wassermanproductions.com",
   wassermanAi: "https://wasserman.ai",
 };

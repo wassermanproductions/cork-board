@@ -1,6 +1,6 @@
 /*
   Cork Board — the digital cork board for filmmakers.
-  Developed by Sam Wasserman. MIT License.
+  Developed by Sam Wasserman. Apache License 2.0.
   Local-first: everything lives in this browser / desktop app. No accounts, no cloud.
 */
 

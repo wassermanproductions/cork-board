@@ -1,7 +1,7 @@
 <p align="center"><img src="docs/images/logo.png" alt="Cork Board — plan, structure, visualize, create. For filmmakers. Local-first." width="640"></p>
 
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="License: Apache 2.0"></a>
   <a href="../../releases/latest"><img src="https://img.shields.io/github/v/release/wassermanproductions/cork-board?label=download" alt="Latest release"></a>
   <img src="https://img.shields.io/badge/platforms-macOS%20·%20Windows%20·%20Linux-2f7bf6" alt="Platforms">
   <a href="https://ko-fi.com/samwasserman"><img src="https://img.shields.io/badge/Ko--fi-support%20Sam%20Wasserman-ff5e5b?logo=kofi&logoColor=white" alt="Support Sam Wasserman on Ko-fi"></a>
@@ -15,7 +15,7 @@ Cork Board is a local-first planning app that emulates the classic wall of index
 
 **Created by [Sam Wasserman](https://wassermanproductions.com)** —
 writer/director, [Wasserman Productions](https://wassermanproductions.com) ·
-[wasserman.ai](https://wasserman.ai). Released under the MIT License.
+[wasserman.ai](https://wasserman.ai). Released under the Apache License 2.0.
 
 > ☕ **A little support goes a long way!** Cork Board is created and
 > maintained by **Sam Wasserman**. If you'd like to help Sam keep creating
