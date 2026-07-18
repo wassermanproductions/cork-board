@@ -1,0 +1,68 @@
+{
+  "name": "cork-board",
+  "version": "1.0.0",
+  "description": "The ultimate digital cork board for filmmakers. Plan scenes, acts, episodes, characters, and locations on index cards — before or during writing.",
+  "main": "electron/main.cjs",
+  "author": "Sam Wasserman",
+  "homepage": "https://wasserman.ai",
+  "repository": "github:wassermanproductions/cork-board",
+  "private": false,
+  "license": "MIT",
+  "scripts": {
+    "start": "vite --host 127.0.0.1",
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "desktop": "npm run build && electron electron/main.cjs",
+    "desktop:dir": "npm run build && electron-builder --dir",
+    "desktop:dist": "npm run build && electron-builder"
+  },
+  "build": {
+    "appId": "studio.corkboard.app",
+    "productName": "Cork Board",
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "mac": {
+      "category": "public.app-category.productivity",
+      "identity": null,
+      "icon": "build/icon.png",
+      "artifactName": "CorkBoard-macOS-${arch}.${ext}",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "win": {
+      "icon": "build/icon.png",
+      "artifactName": "CorkBoard-Windows-${arch}.${ext}",
+      "target": [
+        "nsis",
+        "zip"
+      ]
+    },
+    "nsis": {
+      "artifactName": "CorkBoard-Setup.${ext}"
+    },
+    "linux": {
+      "icon": "build/icon.png",
+      "artifactName": "CorkBoard-Linux-${arch}.${ext}",
+      "target": [
+        "AppImage",
+        "tar.gz"
+      ],
+      "category": "Office",
+      "maintainer": "Sam Wasserman <sam@wassermanproductions.com>"
+    }
+  },
+  "devDependencies": {
+    "electron": "^42.2.0",
+    "electron-builder": "^26.8.1",
+    "vite": "^6.2.0"
+  }
+}

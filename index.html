@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="The digital cork board for filmmakers. Plan scenes, acts, episodes, characters, and locations on index cards."
+    />
+    <title>Cork Board</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div id="app" class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20">
+              <rect x="3" y="5" width="18" height="14" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6" />
+              <line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" stroke-width="1.2" />
+              <circle cx="12" cy="7" r="1.4" fill="currentColor" />
+            </svg>
+          </span>
+          <div>
+            <strong>Cork Board</strong>
+            <input id="projectTitle" class="project-title" value="Untitled production" aria-label="Project title" />
+          </div>
+        </div>
+        <div class="top-actions">
+          <select id="projectSelect" class="project-select" aria-label="Saved projects"></select>
+          <button id="undoBtn" class="button" type="button" title="Undo last change" data-tip="Undo last change" disabled>Undo</button>
+          <button id="newProjectBtn" class="button" type="button" title="Create a new blank project" data-tip="Create a new blank project">New</button>
+          <button id="templatesBtn" class="button" type="button" title="Start from a production preset" data-tip="Start from a production preset">Presets</button>
+          <button id="findBtn" class="button" type="button" title="Search and filter cards" data-tip="Search and filter cards">Find</button>
+          <button id="versionsBtn" class="button" type="button" title="Save or restore checkpoints" data-tip="Save or restore checkpoints">History</button>
+          <button id="helpBtn" class="button" type="button" title="Open the movable key" data-tip="Open the movable key">Key</button>
+          <button id="saveProjectBtn" class="button primary" type="button" title="Save this project locally" data-tip="Save this project locally">Save</button>
+          <button id="exportBtn" class="button" type="button" title="Export outline, beat sheet, CSV, or JSON" data-tip="Export outline, beat sheet, CSV, or JSON">Export</button>
+        </div>
+      </header>
+
+      <div class="boardbar">
+        <div id="boardTabs" class="board-tabs" role="tablist" aria-label="Boards"></div>
+        <button id="addBoardBtn" class="icon-button" type="button" title="Add a board (episode, wall, or version)" data-tip="Add a board (episode, wall, or version)" aria-label="Add board">+</button>
+        <div class="boardbar-spacer"></div>
+        <div class="view-switch" role="group" aria-label="View">
+          <button id="viewBoardBtn" class="view-button is-active" type="button" title="Cork board view" data-tip="Cork board view">Board</button>
+          <button id="viewOutlineBtn" class="view-button" type="button" title="Linear outline view" data-tip="Linear outline view">Outline</button>
+          <button id="viewArcsBtn" class="view-button" type="button" title="Character arc grid" data-tip="Character arc grid">Arcs</button>
+        </div>
+        <button id="surfaceBtn" class="button compact" type="button" title="Switch board surface" data-tip="Switch board surface">Cork</button>
+        <button id="densityBtn" class="button compact" type="button" title="Switch card size" data-tip="Switch card size">Cards: M</button>
+        <button id="toggleDrawerBtn" class="button compact" type="button" title="Show or hide the cast and world drawer" data-tip="Show or hide the cast and world drawer">World</button>
+      </div>
+
+      <div id="filterBar" class="filter-bar is-hidden">
+        <input id="searchInput" type="search" placeholder="Search titles, synopsis, notes, tags..." aria-label="Search cards" />
+        <select id="filterCharacter" aria-label="Filter by character"></select>
+        <select id="filterLocation" aria-label="Filter by location"></select>
+        <select id="filterLabel" aria-label="Filter by label"></select>
+        <select id="filterStatus" aria-label="Filter by status"></select>
+        <span id="filterCount" class="filter-count"></span>
+        <button id="clearFilterBtn" class="button compact" type="button" title="Clear all filters" data-tip="Clear all filters">Clear</button>
+        <button id="closeFilterBtn" class="icon-button" type="button" title="Close search" data-tip="Close search" aria-label="Close search">X</button>
+      </div>
+
+      <aside id="drawer" class="drawer" aria-label="Cast and world">
+        <div class="drawer-tabs" role="tablist" aria-label="Drawer sections">
+          <button class="drawer-tab is-active" type="button" data-drawer-tab="characters" title="Characters and arcs" data-tip="Characters and arcs">Cast</button>
+          <button class="drawer-tab" type="button" data-drawer-tab="locations" title="Locations" data-tip="Locations">Places</button>
+          <button class="drawer-tab" type="button" data-drawer-tab="labels" title="Labels and tags" data-tip="Labels and tags">Labels</button>
+          <button class="drawer-tab" type="button" data-drawer-tab="stats" title="Project insights" data-tip="Project insights">Insights</button>
+        </div>
+        <div id="drawerContent" class="drawer-content"></div>
+      </aside>
+
+      <main id="mainArea" class="main-area">
+        <div id="boardView" class="board-view surface-cork" aria-label="Cork board">
+          <div id="columnRow" class="column-row"></div>
+        </div>
+        <div id="outlineView" class="outline-view is-hidden" aria-label="Outline"></div>
+        <div id="arcsView" class="arcs-view is-hidden" aria-label="Character arcs"></div>
+      </main>
+
+      <aside id="inspector" class="inspector is-hidden" aria-label="Card inspector"></aside>
+      <div id="inspectorResizeHandle" class="resize-handle inspector-resize-handle is-hidden" role="separator" aria-label="Resize inspector" title="Drag to resize inspector" data-tip="Drag to resize inspector"></div>
+
+      <dialog id="templatesDialog" class="app-dialog">
+        <form method="dialog" class="dialog-panel">
+          <div class="panel-head">
+            <div>
+              <h2>Production Presets</h2>
+              <span>Start a new project from a proven structure, or load the demo feature.</span>
+            </div>
+            <button class="icon-button" value="close" type="submit" title="Close presets" data-tip="Close presets" aria-label="Close">X</button>
+          </div>
+          <div id="templatesList" class="template-list"></div>
+        </form>
+      </dialog>
+
+      <dialog id="exportDialog" class="app-dialog">
+        <form method="dialog" class="dialog-panel">
+          <div class="panel-head">
+            <div>
+              <h2>Export</h2>
+              <span>Take the whole board with you</span>
+            </div>
+            <button class="icon-button" value="close" type="submit" title="Close export" data-tip="Close export" aria-label="Close">X</button>
+          </div>
+          <textarea id="exportText" readonly aria-label="Export preview"></textarea>
+          <div class="dialog-actions">
+            <button id="downloadOutlineBtn" class="button primary" type="button" title="Download the outline as Markdown" data-tip="Download the outline as Markdown">Outline (Markdown)</button>
+            <button id="downloadCsvBtn" class="button" type="button" title="Download every card as a CSV spreadsheet" data-tip="Download every card as a CSV spreadsheet">Scene List (CSV)</button>
+            <button id="downloadFountainBtn" class="button" type="button" title="Download scene headings as a Fountain file" data-tip="Download scene headings as a Fountain file">Scaffold (Fountain)</button>
+            <button id="downloadJsonBtn" class="button" type="button" title="Download the full project as JSON" data-tip="Download the full project as JSON">Project (JSON)</button>
+            <button id="importJsonBtn" class="button" type="button" title="Import a Cork Board project JSON" data-tip="Import a Cork Board project JSON">Import JSON</button>
+          </div>
+        </form>
+      </dialog>
+
+      <dialog id="versionsDialog" class="app-dialog compact-dialog">
+        <form method="dialog" class="dialog-panel">
+          <div class="panel-head">
+            <div>
+              <h2>Checkpoints</h2>
+              <span>Save named versions before big restructures</span>
+            </div>
+            <button class="icon-button" value="close" type="submit" title="Close checkpoints" data-tip="Close checkpoints" aria-label="Close">X</button>
+          </div>
+          <div class="inspector-section">
+            <div class="field">
+              <label for="versionName">Checkpoint Name</label>
+              <input id="versionName" placeholder="Before act two surgery" />
+            </div>
+            <button id="saveVersionBtn" class="button primary" type="button">Save Checkpoint</button>
+          </div>
+          <div id="versionsList" class="versions-list"></div>
+        </form>
+      </dialog>
+
+      <dialog id="entityDialog" class="app-dialog compact-dialog">
+        <form method="dialog" class="dialog-panel">
+          <div class="panel-head">
+            <div>
+              <h2 id="entityDialogTitle">Character</h2>
+              <span id="entityDialogHint">Everyone your story needs</span>
+            </div>
+            <button class="icon-button" value="close" type="submit" title="Close" data-tip="Close" aria-label="Close">X</button>
+          </div>
+          <div id="entityDialogBody" class="inspector-section"></div>
+          <div class="dialog-actions">
+            <button id="entityDeleteBtn" class="button danger" type="button">Delete</button>
+            <button class="button" value="close" type="submit">Cancel</button>
+            <button id="entitySaveBtn" class="button primary" type="button">Save</button>
+          </div>
+        </form>
+      </dialog>
+
+      <dialog id="confirmDialog" class="app-dialog confirm-dialog">
+        <form method="dialog" class="dialog-panel">
+          <div class="panel-head">
+            <div>
+              <h2 id="confirmTitle">Are you sure?</h2>
+              <span id="confirmDetail"></span>
+            </div>
+          </div>
+          <div class="dialog-actions">
+            <button id="confirmCancelBtn" class="button" value="cancel" type="submit">Cancel</button>
+            <button id="confirmOkBtn" class="button danger" value="ok" type="submit">Delete</button>
+          </div>
+        </form>
+      </dialog>
+
+      <section id="helpPanel" class="help-panel is-hidden" role="dialog" aria-labelledby="helpPanelTitle" aria-label="Cork Board Key">
+        <div class="dialog-panel">
+          <div id="helpDragHandle" class="panel-head help-drag-handle" title="Drag to move the key">
+            <div>
+              <h2 id="helpPanelTitle">Cork Board Key</h2>
+              <span>Everything on the board, explained</span>
+            </div>
+            <button id="helpCloseBtn" class="icon-button" type="button" title="Close the key" data-tip="Close the key" aria-label="Close">X</button>
+          </div>
+          <div class="help-content">
+            <section class="help-section">
+              <h3>Top Bar</h3>
+              <dl class="key-list">
+                <div><dt>Project menu</dt><dd>Switch between saved projects.</dd></div>
+                <div><dt>New</dt><dd>Create a blank project while keeping the others saved.</dd></div>
+                <div><dt>Presets</dt><dd>Start from feature, TV, short, music video, commercial, or documentary structures.</dd></div>
+                <div><dt>Find</dt><dd>Search text and filter by character, location, label, or status. Matching cards stay lit.</dd></div>
+                <div><dt>History</dt><dd>Save or restore named checkpoints before major restructures.</dd></div>
+                <div><dt>Save</dt><dd>Save the current project locally. Autosave also runs after every change.</dd></div>
+                <div><dt>Export</dt><dd>Markdown outline, CSV scene list, Fountain scaffold, or full project JSON.</dd></div>
+              </dl>
+            </section>
+            <section class="help-section">
+              <h3>Board Bar</h3>
+              <dl class="key-list">
+                <div><dt>Board tabs</dt><dd>One board per episode, wall, or draft. Double-click a tab to rename, drag to reorder.</dd></div>
+                <div><dt>+</dt><dd>Add another board to this project.</dd></div>
+                <div><dt>Board / Outline / Arcs</dt><dd>Cork board, linear outline, or the character-by-scene arc grid.</dd></div>
+                <div><dt>Cork</dt><dd>Cycle the surface: cork, paper, or midnight.</dd></div>
+                <div><dt>Cards</dt><dd>Cycle index card size: S, M, L.</dd></div>
+                <div><dt>World</dt><dd>Show or hide the cast, places, labels, and insights drawer.</dd></div>
+              </dl>
+            </section>
+            <section class="help-section">
+              <h3>Cards &amp; Columns</h3>
+              <dl class="key-list">
+                <div><dt>Drag a card</dt><dd>Move it anywhere — within a column, across columns, or onto another board tab.</dd></div>
+                <div><dt>Drag a column</dt><dd>Grab the column header to reorder whole acts or sequences.</dd></div>
+                <div><dt>Click a card</dt><dd>Open the inspector: synopsis, characters, location, labels, status, checklist, notes.</dd></div>
+                <div><dt>+ Add card</dt><dd>Quick-add at the bottom of every column. Enter adds and keeps typing.</dd></div>
+                <div><dt>Double-click header</dt><dd>Rename a column in place.</dd></div>
+                <div><dt>Collapse</dt><dd>Fold a column to a slim spine to focus elsewhere.</dd></div>
+                <div><dt>Drag a cast chip</dt><dd>Drop a character from the drawer onto any card to tag them into the scene.</dd></div>
+              </dl>
+            </section>
+            <section class="help-section">
+              <h3>Keyboard</h3>
+              <dl class="key-list compact">
+                <div><dt>Cmd/Ctrl+Z</dt><dd>Undo.</dd></div>
+                <div><dt>Cmd/Ctrl+F</dt><dd>Find and filter.</dd></div>
+                <div><dt>N</dt><dd>New card in the first column.</dd></div>
+                <div><dt>Delete</dt><dd>Delete the selected card.</dd></div>
+                <div><dt>D</dt><dd>Duplicate the selected card.</dd></div>
+                <div><dt>1 / 2 / 3</dt><dd>Board, Outline, Arcs views.</dd></div>
+                <div><dt>Esc</dt><dd>Close inspector, dialogs, or search.</dd></div>
+                <div><dt>?</dt><dd>Open this key.</dd></div>
+              </dl>
+            </section>
+            <section class="help-section">
+              <h3>Drawer</h3>
+              <dl class="key-list">
+                <div><dt>Cast</dt><dd>Characters with color, role, want/need, and arc. Click to edit, drag onto cards to tag.</dd></div>
+                <div><dt>Places</dt><dd>Locations with INT/EXT and notes. Click to edit.</dd></div>
+                <div><dt>Labels</dt><dd>Colored tags for anything: subplot, tone, VFX, status of research.</dd></div>
+                <div><dt>Insights</dt><dd>Live totals: scenes, pages, runtime, day/night split, character load, location load.</dd></div>
+              </dl>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <input id="importFileInput" type="file" accept="application/json,.json" hidden />
+      <div id="toastRack" class="toast-rack" aria-live="polite"></div>
+    </div>
+
+    <script type="module" src="/src/app.js"></script>
+  </body>
+</html>

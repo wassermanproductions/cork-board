@@ -1,0 +1,81 @@
+# Build and publish release installers.
+#
+# Runs on every version tag (v*). A draft release is created first with the
+# per-version notes, the three platform jobs upload their installers into it
+# via electron-builder, and the final job attaches the Mac read-first note
+# and publishes the release once every platform has delivered.
+name: release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create draft release with notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "${{ github.ref_name }}" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            echo "Release ${{ github.ref_name }} already exists — reusing it."
+            exit 0
+          fi
+          notes=".github/release-notes/${{ github.ref_name }}.md"
+          if [ -f "$notes" ]; then
+            gh release create "${{ github.ref_name }}" --repo "${{ github.repository }}" \
+              --title "Cork Board ${{ github.ref_name }}" --draft --notes-file "$notes"
+          else
+            gh release create "${{ github.ref_name }}" --repo "${{ github.repository }}" \
+              --title "Cork Board ${{ github.ref_name }}" --draft --generate-notes
+          fi
+
+  build:
+    needs: draft
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            args: --mac --universal
+          - os: windows-latest
+            args: --win
+          - os: ubuntu-latest
+            args: --linux
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Package and upload to the draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npx electron-builder ${{ matrix.args }} --publish always
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Attach the Mac read-first note and publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "${{ github.ref_name }}" \
+            .github/release-assets/0-MAC-USERS-READ-FIRST.txt \
+            --clobber --repo "${{ github.repository }}"
+          gh release edit "${{ github.ref_name }}" --repo "${{ github.repository }}" \
+            --draft=false --latest

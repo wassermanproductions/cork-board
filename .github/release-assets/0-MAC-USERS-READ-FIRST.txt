@@ -1,0 +1,28 @@
+MAC USERS — READ THIS FIRST (30 seconds)
+=========================================
+
+The easiest install: skip the DMG entirely. Open Terminal
+(press Cmd-Space, type "Terminal") and paste this one line:
+
+  curl -fsSL https://raw.githubusercontent.com/wassermanproductions/cork-board/main/install.sh | bash
+
+That downloads the right build for your Mac, installs it to
+Applications, and opens it. No warnings, nothing else to do.
+
+
+If you downloaded the DMG instead
+---------------------------------
+macOS will say Cork Board "is damaged and can't be opened" and
+suggest moving it to the Trash. The app is NOT damaged. This is
+macOS's standard warning for apps that aren't Apple-notarized
+(notarization requires a paid Apple Developer account; Cork Board
+is free, open-source software).
+
+The fix:
+  1. Open the DMG and drag Cork Board into Applications.
+  2. In Terminal, paste:   xattr -cr "/Applications/Cork Board.app"
+  3. Open Cork Board from Applications. It opens normally from
+     now on, forever.
+
+You can read every line of the install script and the app's source
+at https://github.com/wassermanproductions/cork-board
