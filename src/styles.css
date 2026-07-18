@@ -2034,3 +2034,27 @@ button:disabled {
   text-decoration: line-through;
   opacity: 0.75;
 }
+
+/* Horizontal wall: acts as rows of cards, like strips pinned across a real wall */
+.board-view.wall-rows .column-row {
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 0;
+}
+.board-view.wall-rows .board-column {
+  width: auto;
+  max-height: none;
+}
+.board-view.wall-rows .column-cards {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  overflow: visible;
+}
+.board-view.wall-rows .column-cards .index-card {
+  width: var(--card-width, 264px);
+  flex: none;
+}
+.board-view.wall-rows .quick-add {
+  max-width: 340px;
+}

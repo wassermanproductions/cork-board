@@ -51,6 +51,7 @@
         </div>
         <button id="surfaceBtn" class="button compact" type="button" title="Switch board surface" data-tip="Switch board surface">Cork</button>
         <button id="densityBtn" class="button compact" type="button" title="Switch card size" data-tip="Switch card size">Cards: M</button>
+        <button id="wallBtn" class="button compact" type="button" title="Switch wall layout: vertical columns or horizontal rows" data-tip="Switch wall layout: vertical columns or horizontal rows">Wall: Columns</button>
         <button id="toggleDrawerBtn" class="button compact" type="button" title="Show or hide the cast and world drawer" data-tip="Show or hide the cast and world drawer">World</button>
       </div>
 
@@ -115,7 +116,8 @@
             <button id="downloadCsvBtn" class="button" type="button" title="Download every card as a CSV spreadsheet" data-tip="Download every card as a CSV spreadsheet">Scene List (CSV)</button>
             <button id="downloadFountainBtn" class="button" type="button" title="Download scene headings as a Fountain file" data-tip="Download scene headings as a Fountain file">Scaffold (Fountain)</button>
             <button id="downloadJsonBtn" class="button" type="button" title="Download the full project as JSON" data-tip="Download the full project as JSON">Project (JSON)</button>
-            <button id="importJsonBtn" class="button" type="button" title="Import a Cork Board project JSON" data-tip="Import a Cork Board project JSON">Import JSON</button>
+            <button id="downloadShareBtn" class="button" type="button" title="One file that anyone can open and print — and Cork Board users can import" data-tip="One file that anyone can open and print — and Cork Board users can import">Share Wall (HTML)</button>
+            <button id="importJsonBtn" class="button" type="button" title="Import a Cork Board project or share file" data-tip="Import a Cork Board project or share file">Import</button>
           </div>
         </form>
       </dialog>
@@ -192,7 +194,7 @@
                 <div><dt>Find</dt><dd>Search text and filter by character, location, label, status, or deadline. Matching cards stay lit.</dd></div>
                 <div><dt>History</dt><dd>Save or restore named checkpoints before major restructures.</dd></div>
                 <div><dt>Save</dt><dd>Save the current project locally. Autosave also runs after every change.</dd></div>
-                <div><dt>Export</dt><dd>Markdown outline, CSV scene list, Fountain scaffold, or full project JSON.</dd></div>
+                <div><dt>Export</dt><dd>Markdown outline, CSV scene list, Fountain scaffold, full project JSON, or a Share Wall file — one HTML page anyone can open and print, and any Cork Board user can import.</dd></div>
               </dl>
             </section>
             <section class="help-section">
@@ -203,6 +205,7 @@
                 <div><dt>Board / Outline / Arcs</dt><dd>Cork board, linear outline, or the character-by-scene arc grid.</dd></div>
                 <div><dt>Cork</dt><dd>Cycle the surface: cork, paper, or midnight.</dd></div>
                 <div><dt>Cards</dt><dd>Cycle index card size: S, M, L.</dd></div>
+                <div><dt>Wall</dt><dd>Columns (acts run vertically, scroll sideways) or Rows (acts run as horizontal strips, scroll down). Your surface, card size, and wall layout are remembered.</dd></div>
                 <div><dt>World</dt><dd>Show or hide the cast, places, labels, and insights drawer.</dd></div>
               </dl>
             </section>
@@ -246,7 +249,7 @@
         </div>
       </section>
 
-      <input id="importFileInput" type="file" accept="application/json,.json" hidden />
+      <input id="importFileInput" type="file" accept="application/json,.json,text/html,.html" hidden />
       <div id="toastRack" class="toast-rack" aria-live="polite"></div>
     </div>
 

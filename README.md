@@ -81,6 +81,8 @@ Cork Board opens normally from then on. (Or right-click the app →
 | **Outline** — the same wall as a clean, numbered beat sheet with statuses and page counts. | **Arcs** — a character-by-scene grid; every cell is an arc beat you can write in place. |
 | ![The card inspector open on a scene](docs/images/inspector.png) | ![Production presets dialog](docs/images/presets.png) |
 | **Inspect** — synopsis, paper color, INT/EXT, location, status, due date, characters, labels, arc beats, checklist. | **Presets** — 13 production structures, from Save the Cat to a season arc wall, plus the fully worked AVA demo. |
+| ![The rows wall: acts as horizontal strips](docs/images/rows.png) | ![The printable Share Wall file in a browser](docs/images/share.png) |
+| **Rows wall** — stretch the board horizontally: acts become strips across the wall, like a real cork wall. | **Share Wall** — one exported file: anyone can open and print it, and any Cork Board user can import it. |
 
 ![Midnight surface with the Insights drawer](docs/images/midnight.png)
 
@@ -98,8 +100,10 @@ Cork Board opens normally from then on. (Or right-click the app →
 - **Deadlines**: put a due date on any card — the flag turns amber when it's close and red when it's overdue, and calms down once the scene is Locked (or Cut).
 - **Column tools**: collapse a column to a spine, duplicate a whole column with its cards (great for alt versions of an act), or sort its cards by status, due date, title, or pages.
 - **Find & filter**: text search plus character / location / label / status / deadline filters — matching cards stay lit, the rest dim.
+- **Your wall, your way**: cork, paper, or midnight surface; S/M/L cards; and a Columns or Rows wall — run your acts as vertical columns or stretch them as horizontal strips. Every layout choice is remembered as your personal default.
+- **Share the wall**: one Share Wall file that does both jobs — anyone can open it in a browser and print the whole board to pin up for real, and any Cork Board user can import that same file and pick up the full project.
 - **Safety nets**: autosave, undo (60 levels), named checkpoints, full JSON export/import.
-- **Exports**: Markdown outline, CSV scene list (schedule-friendly), Fountain scaffold with scene headings, and complete project JSON.
+- **Exports**: Markdown outline, CSV scene list (schedule-friendly), Fountain scaffold with scene headings, complete project JSON, and the printable Share Wall (HTML).
 
 ## Privacy
 

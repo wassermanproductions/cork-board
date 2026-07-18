@@ -17,7 +17,7 @@ Characters, locations, and labels live at the project level, so the same cast is
 | Find | Search text and filter by character, location, label, status, deadline. |
 | History | Save or restore named checkpoints. |
 | Save | Save now (autosave also runs after every change). |
-| Export | Markdown outline, CSV scene list, Fountain scaffold, project JSON, or import JSON. |
+| Export | Markdown outline, CSV scene list, Fountain scaffold, project JSON, or a Share Wall HTML file. Import accepts both JSON and Share Wall files. |
 
 ## Board bar
 
@@ -25,6 +25,7 @@ Characters, locations, and labels live at the project level, so the same cast is
 - **Board / Outline / Arcs** — the three views (keys `1`, `2`, `3`).
 - **Cork / Paper / Midnight** — board surface.
 - **Cards: S/M/L** — index card size.
+- **Wall: Columns / Rows** — vertical columns (scroll sideways) or horizontal strips (scroll down). Surface, card size, and wall layout are saved as your personal defaults.
 - **World** — show/hide the drawer.
 
 ## Working the wall

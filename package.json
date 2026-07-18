@@ -1,6 +1,6 @@
 {
   "name": "cork-board",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "The ultimate digital cork board for filmmakers. Plan scenes, acts, episodes, characters, and locations on index cards — before or during writing.",
   "main": "electron/main.cjs",
   "author": "Sam Wasserman",

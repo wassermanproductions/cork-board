@@ -49,6 +49,7 @@ const els = {
   viewOutlineBtn: document.querySelector("#viewOutlineBtn"),
   viewArcsBtn: document.querySelector("#viewArcsBtn"),
   surfaceBtn: document.querySelector("#surfaceBtn"),
+  wallBtn: document.querySelector("#wallBtn"),
   densityBtn: document.querySelector("#densityBtn"),
   toggleDrawerBtn: document.querySelector("#toggleDrawerBtn"),
   filterBar: document.querySelector("#filterBar"),
@@ -79,6 +80,7 @@ const els = {
   downloadCsvBtn: document.querySelector("#downloadCsvBtn"),
   downloadFountainBtn: document.querySelector("#downloadFountainBtn"),
   downloadJsonBtn: document.querySelector("#downloadJsonBtn"),
+  downloadShareBtn: document.querySelector("#downloadShareBtn"),
   importJsonBtn: document.querySelector("#importJsonBtn"),
   importFileInput: document.querySelector("#importFileInput"),
   versionsDialog: document.querySelector("#versionsDialog"),
@@ -148,6 +150,8 @@ const TIMES_OF_DAY = ["", "DAY", "NIGHT", "DAWN", "DUSK", "MAGIC HOUR", "LATER",
 const SURFACES = ["cork", "paper", "midnight"];
 const SURFACE_NAMES = { cork: "Cork", paper: "Paper", midnight: "Midnight" };
 const DENSITIES = ["s", "m", "l"];
+const WALLS = ["columns", "rows"];
+const WALL_NAMES = { columns: "Wall: Columns", rows: "Wall: Rows" };
 
 /* ---------- UI state (not part of the saved project) ---------- */
 
@@ -157,6 +161,7 @@ let ui = {
   view: "board",
   surface: "cork",
   density: "m",
+  wall: "columns",
   drawerTab: "characters",
   drawerOpen: true,
   inspectorWidth: 380,
@@ -1117,6 +1122,7 @@ function loadUiPrefs() {
   } catch {}
   if (!SURFACES.includes(ui.surface)) ui.surface = "cork";
   if (!DENSITIES.includes(ui.density)) ui.density = "m";
+  if (!WALLS.includes(ui.wall)) ui.wall = "columns";
   if (!["board", "outline", "arcs"].includes(ui.view)) ui.view = "board";
 }
 
@@ -1322,11 +1328,12 @@ function renderBoardTabs() {
 function renderChromeButtons() {
   els.surfaceBtn.textContent = SURFACE_NAMES[ui.surface];
   els.densityBtn.textContent = `Cards: ${ui.density.toUpperCase()}`;
+  els.wallBtn.textContent = WALL_NAMES[ui.wall];
   els.viewBoardBtn.classList.toggle("is-active", ui.view === "board");
   els.viewOutlineBtn.classList.toggle("is-active", ui.view === "outline");
   els.viewArcsBtn.classList.toggle("is-active", ui.view === "arcs");
   els.appShell.classList.toggle("drawer-collapsed", !ui.drawerOpen);
-  els.boardView.className = `board-view surface-${ui.surface} density-${ui.density}`;
+  els.boardView.className = `board-view surface-${ui.surface} density-${ui.density} wall-${ui.wall}`;
   document.documentElement.style.setProperty("--inspector-width-live", `${ui.inspectorWidth}px`);
   els.inspector.style.width = `${ui.inspectorWidth}px`;
 }
@@ -1574,7 +1581,12 @@ function updateCardDrag(event) {
   let inserted = false;
   for (const el of cards) {
     const r = el.getBoundingClientRect();
-    if (event.clientY < r.top + r.height / 2) {
+    // Rows wall: cards wrap horizontally, so compare within the hovered row by X.
+    const before =
+      ui.wall === "rows"
+        ? event.clientY < r.top || (event.clientY <= r.bottom && event.clientX < r.left + r.width / 2)
+        : event.clientY < r.top + r.height / 2;
+    if (before) {
       container.insertBefore(dragState.placeholder, el);
       inserted = true;
       break;
@@ -1658,7 +1670,9 @@ function updateColumnDrag(event) {
   let inserted = false;
   for (const el of columns) {
     const r = el.getBoundingClientRect();
-    if (event.clientX < r.left + r.width / 2) {
+    const before =
+      ui.wall === "rows" ? event.clientY < r.top + r.height / 2 : event.clientX < r.left + r.width / 2;
+    if (before) {
       els.columnRow.insertBefore(dragState.placeholder, el);
       inserted = true;
       break;
@@ -2829,6 +2843,109 @@ function buildFountain() {
   return lines.join("\n");
 }
 
+function buildShareHtml() {
+  // One self-contained file, two audiences: anyone can open and print the wall
+  // in a browser; Cork Board users can import this same file (the full project
+  // JSON is embedded below) and keep working.
+  const json = JSON.stringify(serializeProject(state)).replaceAll("</", "<\\/");
+  const statusChip = (card) => {
+    const s = statusById(card.status);
+    return `<span class="chip" style="background:${s.color}">${esc(s.name)}</span>`;
+  };
+  const boardsHtml = state.boards
+    .map((board) => {
+      const numbers = cardSceneNumbers(board);
+      const columns = board.columns
+        .map((column) => {
+          const cards = column.cards
+            .map((cardId) => {
+              const card = state.cards[cardId];
+              if (!card) return "";
+              const location = locationById(card.locationId);
+              const slug = [card.intExt, location ? location.name.toUpperCase() : "", card.timeOfDay]
+                .filter(Boolean)
+                .join(" · ");
+              const people = card.characterIds.map((id) => (characterById(id) || {}).name).filter(Boolean).join(", ");
+              const labels = card.labelIds
+                .map((id) => labelById(id))
+                .filter(Boolean)
+                .map((l) => `<span class="chip" style="background:${l.color}">${esc(l.name)}</span>`)
+                .join("");
+              return `
+              <article class="card">
+                <header><span class="num">#${numbers.get(cardId) || ""}</span><h4>${esc(card.title) || "Untitled"}</h4></header>
+                ${slug ? `<p class="slug">${esc(slug)}</p>` : ""}
+                ${card.synopsis ? `<p>${esc(card.synopsis)}</p>` : ""}
+                ${people ? `<p class="people">${esc(people)}</p>` : ""}
+                <footer>${statusChip(card)}${labels}${card.pages !== "" ? `<span class="meta">${formatPages(Number(card.pages))} pg</span>` : ""}${card.due ? `<span class="meta">due ${esc(card.due)}</span>` : ""}</footer>
+              </article>`;
+            })
+            .join("");
+          const pages = columnPageTotal(column);
+          return `
+          <section class="column" style="--accent:${column.accent}">
+            <h3>${esc(column.title)} <span>${column.cards.length} cards${pages ? ` · ${formatPages(pages)} pg` : ""}</span></h3>
+            <div class="cards">${cards || `<p class="empty">Nothing pinned here.</p>`}</div>
+          </section>`;
+        })
+        .join("");
+      return `<section class="board"><h2>${esc(board.title)}</h2><div class="columns">${columns}</div></section>`;
+    })
+    .join("");
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>${esc(state.title)} — Cork Board</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 28px; background: #f6f3ec; color: #171717;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .notice { max-width: 900px; margin: 0 auto 22px; padding: 12px 16px; border: 1px solid #d4ccc0;
+    background: #fffcf5; font-size: 13px; line-height: 1.5; }
+  h1 { margin: 0 0 4px; font-size: 26px; }
+  .sub { margin: 0 0 24px; color: #6d6a62; font-size: 13px; }
+  .board > h2 { margin: 26px 0 10px; font-size: 19px; border-bottom: 2px solid #171717; padding-bottom: 6px; }
+  .columns { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start; }
+  .column { flex: 1 1 300px; min-width: 260px; border: 1px solid #d4ccc0; background: #fffdf8; border-top: 4px solid var(--accent, #171717); }
+  .column h3 { margin: 0; padding: 10px 12px; font-size: 14px; border-bottom: 1px solid #eee8dc; }
+  .column h3 span { float: right; color: #6d6a62; font-size: 11px; font-weight: 600; }
+  .cards { padding: 10px; display: grid; gap: 10px; }
+  .card { border: 1px solid #e3dccd; background: #fffef7; padding: 9px 11px; break-inside: avoid;
+    box-shadow: 0 1px 2px rgba(46,32,16,.12); font-size: 12.5px; line-height: 1.45; }
+  .card header { display: flex; gap: 8px; align-items: baseline; }
+  .card .num { color: #6d6a62; font-size: 11px; font-weight: 700; }
+  .card h4 { margin: 0; font-size: 13.5px; }
+  .card p { margin: 4px 0 0; }
+  .card .slug { color: #6d6a62; font-size: 10.5px; letter-spacing: .04em; }
+  .card .people { font-style: italic; font-size: 11.5px; }
+  .card footer { margin-top: 7px; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+  .chip { padding: 2px 7px; border-radius: 999px; color: #fff; font-size: 9.5px; font-weight: 700; letter-spacing: .03em; }
+  .meta { color: #6d6a62; font-size: 10.5px; font-weight: 700; }
+  .empty { color: #6d6a62; font-size: 12px; }
+  .foot { margin-top: 30px; padding-top: 12px; border-top: 1px solid #d4ccc0; color: #6d6a62; font-size: 12px; }
+  .foot a { color: #146e74; }
+  @media print {
+    body { padding: 10px; background: #fff; }
+    .notice { display: none; }
+    .column { page-break-inside: auto; }
+    @page { size: landscape; margin: 12mm; }
+  }
+</style>
+</head>
+<body>
+<div class="notice"><strong>This is a Cork Board share file.</strong> Print this page to pin the whole wall up for real, or open the Cork Board app and use <em>Export → Import</em> on this very file to load the full project and keep working. Get the free app at <a href="https://github.com/wassermanproductions/cork-board">github.com/wassermanproductions/cork-board</a>.</div>
+<h1>${esc(state.title)}</h1>
+<p class="sub">Planned with Cork Board · exported ${new Date().toLocaleDateString()}</p>
+${boardsHtml}
+<p class="foot">Made with <a href="https://github.com/wassermanproductions/cork-board">Cork Board</a> — the digital cork board for filmmakers, by <a href="https://wassermanproductions.com">Sam Wasserman</a>.</p>
+<script type="application/json" id="corkboard-project">${json}</script>
+</body>
+</html>`;
+}
+
 function downloadText(text, filename, mime) {
   const blob = new Blob([text], { type: mime });
   const url = URL.createObjectURL(blob);
@@ -2853,7 +2970,15 @@ function importProjectFromFile(file) {
   const reader = new FileReader();
   reader.onload = () => {
     try {
-      const parsed = JSON.parse(String(reader.result));
+      let text = String(reader.result);
+      // Share files are HTML with the project JSON embedded — accept those too.
+      if (!text.trimStart().startsWith("{")) {
+        const doc = new DOMParser().parseFromString(text, "text/html");
+        const embedded = doc.querySelector('script[type="application/json"]#corkboard-project');
+        if (!embedded) throw new Error("bad");
+        text = embedded.textContent;
+      }
+      const parsed = JSON.parse(text);
       if (!parsed || typeof parsed !== "object" || !parsed.boards) throw new Error("bad");
       parsed.id = uid("proj");
       adoptProject(parsed, `Imported "${parsed.title || "project"}"`);
@@ -3044,6 +3169,11 @@ function bindBoardBar() {
   });
   els.densityBtn.addEventListener("click", () => {
     ui.density = DENSITIES[(DENSITIES.indexOf(ui.density) + 1) % DENSITIES.length];
+    saveUiPrefs();
+    renderChromeButtons();
+  });
+  els.wallBtn.addEventListener("click", () => {
+    ui.wall = WALLS[(WALLS.indexOf(ui.wall) + 1) % WALLS.length];
     saveUiPrefs();
     renderChromeButtons();
   });
@@ -3378,6 +3508,7 @@ function bindDialogEvents() {
   els.downloadJsonBtn.addEventListener("click", () =>
     downloadText(JSON.stringify(exportProjectJson(), null, 2), slugFilename("json"), "application/json")
   );
+  els.downloadShareBtn.addEventListener("click", () => downloadText(buildShareHtml(), slugFilename("html"), "text/html"));
   els.importJsonBtn.addEventListener("click", () => els.importFileInput.click());
   els.importFileInput.addEventListener("change", () => {
     const file = els.importFileInput.files[0];
