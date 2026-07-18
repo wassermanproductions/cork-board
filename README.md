@@ -1,4 +1,4 @@
-<p align="center"><img src="build/icon.png" alt="Cork Board" width="140"></p>
+<p align="center"><img src="docs/images/logo.png" alt="Cork Board — plan, structure, visualize, create. For filmmakers. Local-first." width="640"></p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a>
@@ -29,6 +29,8 @@ Part of the [**Wasserman Filmmaker Suite**](https://github.com/wassermanproducti
 [Master Canvas](https://github.com/wassermanproductions/master-canvas),
 [Storyboard Reference Studio](https://github.com/wassermanproductions/storyboard-reference-studio), and
 [Stem Studio](https://github.com/wassermanproductions/stem-studio).
+
+![The AVA demo feature on the cork wall](docs/images/hero.png)
 
 ## ⬇ Download
 
@@ -71,16 +73,31 @@ Cork Board opens normally from then on. (Or right-click the app →
 
 </details>
 
+## Screenshot tour
+
+|  |  |
+|---|---|
+| ![Outline view: the numbered beat sheet](docs/images/outline.png) | ![Arcs view: the character-by-scene grid](docs/images/arcs.png) |
+| **Outline** — the same wall as a clean, numbered beat sheet with statuses and page counts. | **Arcs** — a character-by-scene grid; every cell is an arc beat you can write in place. |
+| ![The card inspector open on a scene](docs/images/inspector.png) | ![Production presets dialog](docs/images/presets.png) |
+| **Inspect** — synopsis, paper color, INT/EXT, location, status, due date, characters, labels, arc beats, checklist. | **Presets** — 13 production structures, from Save the Cat to a season arc wall, plus the fully worked AVA demo. |
+
+![Midnight surface with the Insights drawer](docs/images/midnight.png)
+
+**Midnight** — the same wall on the midnight surface, with live Insights: pages, est. runtime, day/night split, character load, location load.
+
 ## Features
 
 - **The board**: index cards on a cork (or paper, or midnight) surface. Drag cards within and across columns, drag whole columns to restructure acts, drag a card onto another board tab to move it between episodes.
-- **Cards that know filmmaking**: title, synopsis, INT/EXT, time of day, location, characters, colored labels, status (Idea → Outlined → Drafted → Revised → Locked → Cut), page count, checklist, notes, and seven index-card paper colors. Pushpin color follows status.
+- **Cards that know filmmaking**: title, synopsis, INT/EXT, time of day, location, characters, colored labels, status (Idea → Outlined → Drafted → Revised → Locked → Cut), page count, due date, checklist, notes, and seven index-card paper colors. Pushpin color follows status.
 - **Three views**: Board (the cork wall), Outline (a clean numbered beat sheet), and Arcs (a character-by-scene grid where every cell is an arc beat).
 - **Cast & world drawer**: characters with color, role, want/need, and arc; locations with INT/EXT and scout notes; labels for subplots and threads; live Insights (cards, pages, est. runtime, day/night split, character load, location load).
 - **Drag a character onto a card** to tag them into the scene.
 - **Multi-board projects**: one wall for a feature, or a season wall plus a board per episode. Multiple projects, all saved locally.
 - **Presets**: AVA demo feature (fully worked example), Three Acts, Save the Cat, Eight Sequences, One-Hour Pilot, Half-Hour Comedy, Season Arc Wall, Multi-Board Series, Short Film, Music Video, Commercial, Documentary, and a blank wall.
-- **Find & filter**: text search plus character / location / label / status filters — matching cards stay lit, the rest dim.
+- **Deadlines**: put a due date on any card — the flag turns amber when it's close and red when it's overdue, and calms down once the scene is Locked (or Cut).
+- **Column tools**: collapse a column to a spine, duplicate a whole column with its cards (great for alt versions of an act), or sort its cards by status, due date, title, or pages.
+- **Find & filter**: text search plus character / location / label / status / deadline filters — matching cards stay lit, the rest dim.
 - **Safety nets**: autosave, undo (60 levels), named checkpoints, full JSON export/import.
 - **Exports**: Markdown outline, CSV scene list (schedule-friendly), Fountain scaffold with scene headings, and complete project JSON.
 
