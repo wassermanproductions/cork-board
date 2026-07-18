@@ -57,6 +57,7 @@ const els = {
   filterLocation: document.querySelector("#filterLocation"),
   filterLabel: document.querySelector("#filterLabel"),
   filterStatus: document.querySelector("#filterStatus"),
+  filterDue: document.querySelector("#filterDue"),
   filterCount: document.querySelector("#filterCount"),
   clearFilterBtn: document.querySelector("#clearFilterBtn"),
   closeFilterBtn: document.querySelector("#closeFilterBtn"),
@@ -160,7 +161,7 @@ let ui = {
   drawerOpen: true,
   inspectorWidth: 380,
 };
-let filter = { query: "", characterId: "", locationId: "", labelId: "", status: "" };
+let filter = { query: "", characterId: "", locationId: "", labelId: "", status: "", due: "" };
 let filterOpen = false;
 let selectedCardId = "";
 let quickAddColumnId = "";
@@ -190,6 +191,7 @@ function makeCard(partial = {}) {
     timeOfDay: "",
     status: "idea",
     pages: "",
+    due: "",
     checklist: [],
     arcNotes: {},
     createdAt: now(),
@@ -299,6 +301,31 @@ function formatPages(total) {
   return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
 }
 
+const DUE_FILTERS = [
+  { id: "overdue", name: "Overdue" },
+  { id: "week", name: "Due in 7 days" },
+  { id: "has", name: "Has deadline" },
+  { id: "none", name: "No deadline" },
+];
+
+function localToday() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function dueMeta(card) {
+  if (!card.due) return null;
+  const today = localToday();
+  const days = Math.round((new Date(`${card.due}T12:00`) - new Date(`${today}T12:00`)) / 86400000);
+  const done = card.status === "locked" || card.status === "cut";
+  const date = new Date(`${card.due}T12:00`);
+  const sameYear = date.getFullYear() === new Date().getFullYear();
+  const label = date.toLocaleDateString(undefined, { month: "short", day: "numeric", ...(sameYear ? {} : { year: "numeric" }) });
+  const cls = done ? "is-done" : days < 0 ? "is-overdue" : days <= 3 ? "is-soon" : "";
+  const hint = done ? "Deadline met" : days < 0 ? `${-days} day${days === -1 ? "" : "s"} overdue` : days === 0 ? "Due today" : `Due in ${days} day${days === 1 ? "" : "s"}`;
+  return { label, cls, hint, days, done };
+}
+
 function initialsOf(name) {
   const parts = String(name)
     .replace(/[^\p{L}\p{N}\s]/gu, "")
@@ -345,6 +372,52 @@ function duplicateCard(cardId) {
   state.cards[copy.id] = copy;
   home.column.cards.splice(home.index + 1, 0, copy.id);
   return copy.id;
+}
+
+function duplicateColumn(columnId) {
+  const found = findColumn(columnId);
+  if (!found) return;
+  const { board, column } = found;
+  const index = board.columns.findIndex((c) => c.id === columnId);
+  pushUndo();
+  const cardIds = column.cards.map((cardId) => {
+    const source = state.cards[cardId];
+    if (!source) return null;
+    const copy = JSON.parse(JSON.stringify(source));
+    copy.id = uid("card");
+    copy.createdAt = now();
+    copy.updatedAt = now();
+    copy.checklist = copy.checklist.map((item) => ({ ...item, id: uid("chk") }));
+    state.cards[copy.id] = copy;
+    return copy.id;
+  });
+  const copy = makeColumn(`${column.title} (copy)`, column.accent, cardIds.filter(Boolean));
+  board.columns.splice(index + 1, 0, copy);
+  saveProject(false);
+  renderAll();
+  toast("Column duplicated");
+}
+
+const COLUMN_SORTS = {
+  status: { label: "status", rank: (card) => STATUSES.findIndex((s) => s.id === card.status) },
+  due: { label: "due date", rank: (card) => (card.due ? card.due : "9999-99-99") },
+  title: { label: "title", rank: (card) => (card.title || "").toLowerCase() },
+  pages: { label: "pages (longest first)", rank: (card) => (card.pages === "" ? Infinity : -Number(card.pages)) },
+};
+
+function sortColumn(columnId, key) {
+  const found = findColumn(columnId);
+  const sorter = COLUMN_SORTS[key];
+  if (!found || !sorter || found.column.cards.length < 2) return;
+  pushUndo();
+  found.column.cards.sort((a, b) => {
+    const ra = sorter.rank(state.cards[a]);
+    const rb = sorter.rank(state.cards[b]);
+    return ra < rb ? -1 : ra > rb ? 1 : 0;
+  });
+  saveProject(false);
+  renderBoard();
+  toast(`Sorted by ${sorter.label}`);
 }
 /* ---------- Presets ---------- */
 
@@ -1160,7 +1233,7 @@ function toast(message, isError = false) {
 /* ---------- Filters ---------- */
 
 function filterActive() {
-  return Boolean(filter.query || filter.characterId || filter.locationId || filter.labelId || filter.status);
+  return Boolean(filter.query || filter.characterId || filter.locationId || filter.labelId || filter.status || filter.due);
 }
 
 function cardMatchesFilter(card) {
@@ -1169,6 +1242,13 @@ function cardMatchesFilter(card) {
   if (filter.locationId && card.locationId !== filter.locationId) return false;
   if (filter.labelId && !card.labelIds.includes(filter.labelId)) return false;
   if (filter.status && card.status !== filter.status) return false;
+  if (filter.due) {
+    const meta = dueMeta(card);
+    if (filter.due === "has" && !meta) return false;
+    if (filter.due === "none" && meta) return false;
+    if (filter.due === "overdue" && !(meta && !meta.done && meta.days < 0)) return false;
+    if (filter.due === "week" && !(meta && !meta.done && meta.days >= 0 && meta.days <= 7)) return false;
+  }
   if (filter.query) {
     const q = filter.query.toLowerCase();
     const location = locationById(card.locationId);
@@ -1189,7 +1269,7 @@ function cardMatchesFilter(card) {
 }
 
 function clearFilter(render = true) {
-  filter = { query: "", characterId: "", locationId: "", labelId: "", status: "" };
+  filter = { query: "", characterId: "", locationId: "", labelId: "", status: "", due: "" };
   els.searchInput.value = "";
   if (render) {
     renderFilterControls();
@@ -1206,6 +1286,7 @@ function renderFilterControls() {
   els.filterLocation.innerHTML = options(state.locations, filter.locationId, "Any location");
   els.filterLabel.innerHTML = options(state.labels, filter.labelId, "Any label");
   els.filterStatus.innerHTML = options(STATUSES.map((s) => ({ id: s.id, name: s.name })), filter.status, "Any status");
+  els.filterDue.innerHTML = options(DUE_FILTERS, filter.due, "Any deadline");
   if (filterActive()) {
     const board = activeBoard();
     const total = boardCardIds(board).length;
@@ -1279,6 +1360,8 @@ function renderCardEl(cardId, sceneNumber) {
   const checklistTotal = card.checklist.length;
   const checklistDone = card.checklist.filter((i) => i.done).length;
   const pages = card.pages !== "" && !Number.isNaN(Number(card.pages)) ? `${formatPages(Number(card.pages))} pg` : "";
+  const due = dueMeta(card);
+  const dueHtml = due ? `<span class="card-due ${due.cls}" title="${esc(due.hint)}">⚑ ${esc(due.label)}</span>` : "";
   return `
     <article class="index-card ${tiltClass(card.id)} ${dimmed ? "is-dimmed" : ""} ${selected ? "is-selected" : ""}"
       data-card-id="${card.id}" data-paper="${esc(card.paper)}" style="--pin-color:${status.color}">
@@ -1294,6 +1377,7 @@ function renderCardEl(cardId, sceneNumber) {
         <span class="card-status-dot" style="background:${status.color}" title="${esc(status.name)}"></span>
         <span class="card-location">${location ? esc(location.name) : ""}</span>
         ${checklistTotal ? `<span class="card-checklist-meta">${checklistDone}/${checklistTotal} ✓</span>` : ""}
+        ${dueHtml}
         <span class="card-pages">${pages}</span>
       </div>
     </article>`;
@@ -1677,12 +1761,21 @@ function openColumnMenu(anchor, columnId) {
     "position:fixed;z-index:65;display:grid;gap:2px;min-width:180px;padding:6px;border:1px solid var(--ink);background:var(--surface);box-shadow:var(--shadow);";
   const item = (label, action, danger = false) =>
     `<button type="button" data-menu-action="${action}" style="display:block;width:100%;padding:7px 10px;border:0;background:transparent;text-align:left;font-size:0.76rem;font-weight:650;${danger ? "color:var(--red);" : ""}">${label}</button>`;
+  const divider = `<hr style="margin:3px 2px;border:0;border-top:1px solid var(--line, #d8d2c4)" />`;
   menu.innerHTML = [
     item("Rename", "rename"),
     item(column.collapsed ? "Expand" : "Collapse", "collapse"),
     item("Change accent color", "accent"),
     item("Add card", "add-card"),
     item("Add column after", "add-column"),
+    item("Duplicate column", "duplicate"),
+    divider,
+    `<span style="display:block;padding:4px 10px 2px;font-size:0.62rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted)">Sort cards by</span>`,
+    item("Status", "sort-status"),
+    item("Due date", "sort-due"),
+    item("Title", "sort-title"),
+    item("Pages", "sort-pages"),
+    divider,
     item("Delete column…", "delete", true),
   ].join("");
   document.body.appendChild(menu);
@@ -1710,6 +1803,8 @@ function openColumnMenu(anchor, columnId) {
       renderBoard();
     }
     if (action === "add-card") openQuickAdd(columnId);
+    if (action === "duplicate") duplicateColumn(columnId);
+    if (action.startsWith("sort-")) sortColumn(columnId, action.slice(5));
     if (action === "add-column") {
       pushUndo();
       const board = activeBoard();
@@ -1966,6 +2061,10 @@ function renderInspector() {
           </div>
         </div>
         <div class="field">
+          <label for="cardDue">Due Date${(() => { const d = dueMeta(card); return d ? ` · ${d.hint.toLowerCase()}` : ""; })()}</label>
+          <input id="cardDue" data-card-field="due" type="date" value="${esc(card.due)}" />
+        </div>
+        <div class="field">
           <label>Characters in Scene</label>
           <div class="pick-row">${characterChips}</div>
         </div>
@@ -2141,7 +2240,7 @@ function bindInspectorEvents() {
       card.updatedAt = now();
       scheduleSave();
       refreshCardOnBoard(card.id);
-      if (field === "status") renderInspector();
+      if (field === "status" || field === "due") renderInspector();
       renderDrawer();
     }
   });
@@ -2518,6 +2617,7 @@ function renderOutline() {
             <div class="outline-side">
               <span class="status-chip" style="background:${status.color}">${status.name}</span>
               ${card.pages !== "" ? `<span>${formatPages(Number(card.pages))} pg</span>` : ""}
+              ${(() => { const due = dueMeta(card); return due ? `<span class="card-due ${due.cls}" title="${esc(due.hint)}">⚑ ${esc(due.label)}</span>` : ""; })()}
             </div>
           </div>`;
         })
@@ -2643,6 +2743,7 @@ function buildMarkdownOutline() {
         if (card.synopsis) lines.push(`   - ${card.synopsis}`);
         if (people) lines.push(`   - Cast: ${people}`);
         if (labels) lines.push(`   - Labels: ${labels}`);
+        if (card.due) lines.push(`   - Due: ${card.due}`);
         const beats = Object.entries(card.arcNotes)
           .map(([chId, note]) => {
             const ch = characterById(chId);
@@ -2679,7 +2780,7 @@ function csvEscape(value) {
 }
 
 function buildCsv() {
-  const rows = [["Board", "Column", "#", "Title", "Synopsis", "Int/Ext", "Time", "Location", "Characters", "Labels", "Status", "Pages"]];
+  const rows = [["Board", "Column", "#", "Title", "Synopsis", "Int/Ext", "Time", "Location", "Characters", "Labels", "Status", "Pages", "Due"]];
   for (const board of state.boards) {
     const numbers = cardSceneNumbers(board);
     for (const column of board.columns) {
@@ -2700,6 +2801,7 @@ function buildCsv() {
           card.labelIds.map((id) => (labelById(id) || {}).name).filter(Boolean).join("; "),
           statusById(card.status).name,
           card.pages,
+          card.due,
         ]);
       }
     }
@@ -2904,6 +3006,7 @@ function bindFilterBar() {
     [els.filterLocation, "locationId"],
     [els.filterLabel, "labelId"],
     [els.filterStatus, "status"],
+    [els.filterDue, "due"],
   ]) {
     el.addEventListener("change", () => {
       filter[key] = el.value;

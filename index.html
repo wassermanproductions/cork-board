@@ -8,6 +8,7 @@
       content="The digital cork board for filmmakers. Plan scenes, acts, episodes, characters, and locations on index cards."
     />
     <title>Cork Board</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="stylesheet" href="/src/styles.css" />
   </head>
   <body>
@@ -59,6 +60,7 @@
         <select id="filterLocation" aria-label="Filter by location"></select>
         <select id="filterLabel" aria-label="Filter by label"></select>
         <select id="filterStatus" aria-label="Filter by status"></select>
+        <select id="filterDue" aria-label="Filter by deadline"></select>
         <span id="filterCount" class="filter-count"></span>
         <button id="clearFilterBtn" class="button compact" type="button" title="Clear all filters" data-tip="Clear all filters">Clear</button>
         <button id="closeFilterBtn" class="icon-button" type="button" title="Close search" data-tip="Close search" aria-label="Close search">X</button>
@@ -187,7 +189,7 @@
                 <div><dt>Project menu</dt><dd>Switch between saved projects.</dd></div>
                 <div><dt>New</dt><dd>Create a blank project while keeping the others saved.</dd></div>
                 <div><dt>Presets</dt><dd>Start from feature, TV, short, music video, commercial, or documentary structures.</dd></div>
-                <div><dt>Find</dt><dd>Search text and filter by character, location, label, or status. Matching cards stay lit.</dd></div>
+                <div><dt>Find</dt><dd>Search text and filter by character, location, label, status, or deadline. Matching cards stay lit.</dd></div>
                 <div><dt>History</dt><dd>Save or restore named checkpoints before major restructures.</dd></div>
                 <div><dt>Save</dt><dd>Save the current project locally. Autosave also runs after every change.</dd></div>
                 <div><dt>Export</dt><dd>Markdown outline, CSV scene list, Fountain scaffold, or full project JSON.</dd></div>
@@ -209,10 +211,12 @@
               <dl class="key-list">
                 <div><dt>Drag a card</dt><dd>Move it anywhere — within a column, across columns, or onto another board tab.</dd></div>
                 <div><dt>Drag a column</dt><dd>Grab the column header to reorder whole acts or sequences.</dd></div>
-                <div><dt>Click a card</dt><dd>Open the inspector: synopsis, characters, location, labels, status, checklist, notes.</dd></div>
+                <div><dt>Click a card</dt><dd>Open the inspector: synopsis, characters, location, labels, status, due date, checklist, notes.</dd></div>
                 <div><dt>+ Add card</dt><dd>Quick-add at the bottom of every column. Enter adds and keeps typing.</dd></div>
                 <div><dt>Double-click header</dt><dd>Rename a column in place.</dd></div>
                 <div><dt>Collapse</dt><dd>Fold a column to a slim spine to focus elsewhere.</dd></div>
+                <div><dt>⋯ column menu</dt><dd>Rename, recolor, duplicate the column with its cards, or sort its cards by status, due date, title, or pages.</dd></div>
+                <div><dt>Due dates</dt><dd>Set a deadline on a card — the flag turns amber when it's close and red when it's overdue. Locked and Cut cards stop alarming.</dd></div>
                 <div><dt>Drag a cast chip</dt><dd>Drop a character from the drawer onto any card to tag them into the scene.</dd></div>
               </dl>
             </section>

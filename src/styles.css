@@ -2016,3 +2016,21 @@ button:disabled {
     animation-duration: 0.01ms !important;
   }
 }
+
+/* Due-date flags on cards and outline rows */
+.card-due {
+  font-size: 0.62rem;
+  font-weight: 750;
+  white-space: nowrap;
+  color: var(--muted);
+}
+.card-due.is-soon {
+  color: var(--amber);
+}
+.card-due.is-overdue {
+  color: var(--red);
+}
+.card-due.is-done {
+  text-decoration: line-through;
+  opacity: 0.75;
+}

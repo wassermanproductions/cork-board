@@ -14,7 +14,7 @@ Characters, locations, and labels live at the project level, so the same cast is
 | Undo | Reverse the last change (up to 60 steps, Cmd/Ctrl+Z). |
 | New | Create a blank project. |
 | Presets | Start from a production structure or load the AVA demo. |
-| Find | Search text and filter by character, location, label, status. |
+| Find | Search text and filter by character, location, label, status, deadline. |
 | History | Save or restore named checkpoints. |
 | Save | Save now (autosave also runs after every change). |
 | Export | Markdown outline, CSV scene list, Fountain scaffold, project JSON, or import JSON. |
@@ -31,8 +31,9 @@ Characters, locations, and labels live at the project level, so the same cast is
 
 - **Add a card**: `+ Add card` at the bottom of any column (Enter adds and keeps the box open), or press `N`.
 - **Move a card**: drag it. Within a column, across columns, or onto another board tab.
-- **Move a column**: drag its header. Use the `⋯` menu for rename, collapse, accent color, insert, delete.
-- **Edit a card**: click it. The inspector covers synopsis, paper color, INT/EXT, time, pages, location, status, characters, labels, per-character arc beats, checklist, and notes.
+- **Move a column**: drag its header. Use the `⋯` menu for rename, collapse, accent color, insert, duplicate (with cards), sort cards (by status, due date, title, or pages), delete.
+- **Edit a card**: click it. The inspector covers synopsis, paper color, INT/EXT, time, pages, location, status, due date, characters, labels, per-character arc beats, checklist, and notes.
+- **Deadlines**: set a due date in the inspector. The card's flag turns amber within three days, red when overdue, and stops alarming once the scene is Locked or Cut.
 - **Tag a character**: drag their chip from the Cast drawer onto any card, or toggle chips in the inspector.
 - **Add a column**: double-click empty cork, or use a column's `⋯` menu.
 
