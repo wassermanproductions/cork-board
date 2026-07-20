@@ -105,6 +105,17 @@ Cork Board opens normally from then on. (Or right-click the app →
 - **Safety nets**: autosave, undo (60 levels), named checkpoints, full JSON export/import.
 - **Exports**: Markdown outline, CSV scene list (schedule-friendly), Fountain scaffold with scene headings, complete project JSON, and the printable Share Wall (HTML).
 
+## Agent control (MCP)
+
+Any MCP agent — **Hermes, Claude Code, Codex, or any other MCP client** — can read and edit a Cork Board project (walls, acts, scene index cards, cast, places, labels, arc beats), apply the production presets, and produce the app's own exports (outline, scene list, Fountain, JSON, Share Wall) **headlessly**, without the desktop app. It operates on a Cork Board project JSON (Export → JSON from the app → let the agent work → Export → Import). The server lives in [`mcp/`](mcp/) and is zero-dependency, Node ≥ 18, one file.
+
+```bash
+# Claude Code
+claude mcp add cork-board -- node /absolute/path/to/cork-board/mcp/cork-board-mcp.mjs
+```
+
+Set `CORK_BOARD_PROJECT` (or pass `projectPath` on a call) to point at a specific project file; otherwise it defaults to the app-data location. Tools include `get_board`, `add_card` / `update_card` / `move_card` / `tag_card` / `set_arc_beat`, `add_act` / `rename_act` / `reorder_acts`, `add_entity` (cast / places / labels), `list_presets` / `apply_preset`, and `export_outline` / `export_scene_list` / `export_fountain` / `export_json` / `export_share_html`. See [`mcp/README.md`](mcp/README.md) for the full tool list and Hermes/Codex/generic setup.
+
 ## Privacy
 
 All project data is stored locally in the user's browser or desktop app storage. No backend, no account, no uploads.

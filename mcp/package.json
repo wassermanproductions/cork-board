@@ -1,0 +1,13 @@
+{
+  "name": "cork-board-mcp",
+  "version": "1.0.0",
+  "description": "Headless MCP stdio server for Cork Board — read and edit a Cork Board project (walls, acts, scene index cards, cast, places, labels, arc beats), apply the production presets, and export the app's own outputs (outline, scene list, Fountain, JSON, Share Wall) from Hermes, Claude Code, Codex, or any MCP client, without the desktop app.",
+  "type": "module",
+  "bin": { "cork-board-mcp": "./cork-board-mcp.mjs" },
+  "engines": { "node": ">=18" },
+  "author": "Sam Wasserman (https://wassermanproductions.com)",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/wassermanproductions/cork-board/tree/main/mcp",
+  "repository": { "type": "git", "url": "https://github.com/wassermanproductions/cork-board.git" },
+  "keywords": ["mcp", "model-context-protocol", "cork-board", "screenwriting", "index-cards", "beat-sheet", "outline", "fountain", "filmmaking"]
+}
